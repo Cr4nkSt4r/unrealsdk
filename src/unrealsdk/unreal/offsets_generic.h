@@ -151,6 +151,15 @@ class ZGbxDefPtrProperty : public T {
     unreal::UScriptStruct* Struct;
 };
 
+#if UNREALSDK_FLAVOUR == UNREALSDK_FLAVOUR_OAK2
+template <typename T>
+class ZGameDataHandleProperty : public T {
+   public:
+    int32_t HandleTypeId;
+    unreal::UObject* HandleTypeObject;
+};
+#endif
+
 template <typename T>
 class ZGbxInlineStructProperty : public T {
    public:
