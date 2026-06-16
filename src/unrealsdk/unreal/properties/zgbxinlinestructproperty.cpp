@@ -21,13 +21,26 @@ PropTraits<ZGbxInlineStructProperty>::Value PropTraits<ZGbxInlineStructProperty>
 void PropTraits<ZGbxInlineStructProperty>::set(const ZGbxInlineStructProperty* /*prop*/,
                                                uintptr_t addr,
                                                const Value& value) {
-    // TODO: do we need to validate struct type here?
-    *reinterpret_cast<FGbxInlineStruct*>(addr) = value;
+    auto* const dest = reinterpret_cast<FGbxInlineStruct*>(addr);
+    if (dest == &value) {
+        return;
+    }
+
+    FGbxInlineStruct copied{};
+    try {
+        gbx_inline_struct_copy(copied, value);
+    } catch (...) {
+        gbx_inline_struct_reset(copied);
+        throw;
+    }
+
+    gbx_inline_struct_reset(*dest);
+    *dest = copied;
 }
 
 void PropTraits<ZGbxInlineStructProperty>::destroy(const ZGbxInlineStructProperty* /*prop*/,
-                                                   uintptr_t /*addr*/) {
-    // TODO: do we need to free anything here
+                                                   uintptr_t addr) {
+    gbx_inline_struct_reset(*reinterpret_cast<FGbxInlineStruct*>(addr));
 }
 
 }  // namespace unrealsdk::unreal
